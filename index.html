@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+  </head>
+  <body>
+    <ul id="vuetodon">
+      <li v-for="status in statuses" v-on:load="read">
+        {{ status.account.display_name }} just said, <blockquote v-html="status.content"></blockquote>
+      </li>
+    </ul>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.5"></script>
+  <script src="src/vuetodon.js"></script>
+</html>
