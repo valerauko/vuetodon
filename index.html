@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset='utf-8' />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>vuetodon</title>
   </head>
   <body>
-    <ul id="vuetodon">
-      <li v-for="status in statuses" v-on:load="read">
-        {{ status.account.display_name }} just said, <blockquote v-html="status.content"></blockquote>
-      </li>
-    </ul>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
   </body>
-  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.5"></script>
-  <script src="src/vuetodon.js"></script>
 </html>
