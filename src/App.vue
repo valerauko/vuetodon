@@ -1,18 +1,13 @@
 <template>
   <div id="app">
     <h1>Vuetodon</h1>
-    <new-toot/>
     <router-view/>
   </div>
 </template>
 
 <script>
-import NewToot from '@/components/NewToot'
 export default {
-  name: 'app',
-  components: {
-    NewToot
-  }
+  name: 'app'
 }
 </script>
 

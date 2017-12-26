@@ -1,13 +1,17 @@
 <template>
-  <ol>
-    <li v-for="status in statuses">
-      <one-status :status="status"></one-status>
-    </li>
-  </ol>
+  <div>
+    <new-toot/>
+    <ol>
+      <li v-for="status in statuses">
+        <one-status :status="status"></one-status>
+      </li>
+    </ol>
+  </div>
 </template>
 
 <script>
 import OneStatus from './OneStatus'
+import NewToot from '@/components/NewToot'
 export default {
   name: 'Timeline',
   data () {
@@ -55,6 +59,7 @@ export default {
 
   },
   components: {
+    NewToot,
     OneStatus
   },
   created: function () {
