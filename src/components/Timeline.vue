@@ -1,13 +1,17 @@
 <template>
-  <ol>
-    <li v-for="status in statuses">
-      <one-status :status="status"></one-status>
-    </li>
-  </ol>
+  <div>
+    <new-toot/>
+    <ol>
+      <li v-for="status in statuses">
+        <one-status :status="status"></one-status>
+      </li>
+    </ol>
+  </div>
 </template>
 
 <script>
 import OneStatus from './OneStatus'
+import NewToot from '@/components/NewToot'
 export default {
   name: 'Timeline',
   data () {
@@ -30,6 +34,9 @@ export default {
       })
     },
     stream: function () {
+      if (this.token === '') {
+        return false
+      }
       var sock = new WebSocket(this.endpoints.stream +
                                '?access_token=' + this.token +
                                '&stream=user')
@@ -55,9 +62,11 @@ export default {
 
   },
   components: {
+    NewToot,
     OneStatus
   },
   created: function () {
+    this.$router.push('Login') // redirect everything to login for now
     this.token = ''
     this.endpoints = {
       home: 'https://pawoo.net/api/v1/timelines/home',
