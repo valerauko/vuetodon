@@ -20,7 +20,8 @@ export default {
     return {
       statuses: [],
       seen: 0,
-      now: Moment()
+      now: Moment(),
+      timeline: 'home'
     }
   },
   computed: {
@@ -30,14 +31,28 @@ export default {
       )
     }
   },
+  watch: {
+    '$route' (to, from) {
+      if (to === from) {
+        return true
+      }
+      this.timeline = to.name.toLowerCase()
+      this.statuses = []
+      this.socket.close()
+      this.startStream()
+    }
+  },
   methods: {
-    read (endpoint) {
-      this.$http.get(this.endpoints[endpoint], {
+    startStream () {
+      this.read().then(this.stream)
+    },
+    read () {
+      let endpoint = this.endpoints.rest[this.timeline]
+      return this.$http.get(endpoint, {
+        params: { limit: this.statusLimit },
         headers: { Authorization: 'Bearer ' + this.token }
       }).then(response => {
-        console.log(endpoint + ' ' + response.status)
         var result = JSON.parse(response.bodyText)
-        console.log(response)
         this.statuses = result
       }, response => {
         console.log(endpoint + ' request failed')
@@ -45,10 +60,8 @@ export default {
       })
     },
     stream () {
-      var sock = new WebSocket(this.endpoints.stream +
-                               '?access_token=' + this.token +
-                               '&stream=public')
-      var listener = (event) => {
+      this.socket = new WebSocket(this.endpoints.stream[this.timeline])
+      const listener = (event) => {
         event = JSON.parse(event.data)
         event.payload = JSON.parse(event.payload)
         switch (event.event) {
@@ -56,8 +69,8 @@ export default {
             this.seen++
             this.now = Moment()
             this.statuses.unshift(event.payload)
-            if (this.statuses.length > 3) {
-              this.statuses = this.statuses.slice(0, 3)
+            if (this.statuses.length > this.statusLimit) {
+              this.statuses = this.statuses.slice(0, this.statusLimit)
             }
             break
           case 'delete':
@@ -67,7 +80,7 @@ export default {
             break
         }
       }
-      sock.onmessage = listener
+      this.socket.onmessage = listener
     }
   },
   components: {
@@ -75,15 +88,29 @@ export default {
     OneStatus
   },
   created () {
+    this.statusLimit = 20
     this.started = Moment()
-    this.token = ''
+    this.token = JSON.parse(localStorage.getItem('token'))
+    let instance = JSON.parse(localStorage.getItem('instance'))
+    let base = instance + '/api/v1'
+    let apiBase = base + '/timelines'
+    let streamBase = base.replace(/^https?/i, 'ws') +
+                     '/streaming?access_token=' + this.token + '&stream='
     this.endpoints = {
-      home: 'https://pawoo.net/api/v1/timelines/home',
-      stream: 'ws://pawoo.net/api/v1/streaming/'
+      rest: {
+        home: apiBase + '/home',
+        fed: apiBase + '/public',
+        local: apiBase + '/public?local=true'
+      },
+      stream: {
+        home: streamBase + 'user',
+        fed: streamBase + 'public',
+        local: streamBase + 'public:local'
+      }
     }
   },
   mounted () {
-    this.stream()
+    this.startStream()
   }
 }
 </script>
