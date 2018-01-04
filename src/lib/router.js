@@ -9,7 +9,17 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Timeline',
+      name: 'Home',
+      component: Timeline
+    },
+    {
+      path: '/local',
+      name: 'Local',
+      component: Timeline
+    },
+    {
+      path: '/fed',
+      name: 'Fed',
       component: Timeline
     },
     {

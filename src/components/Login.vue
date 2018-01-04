@@ -100,8 +100,6 @@ export default {
         console.log('Login successful')
         this.store.in('instance', instance.host)
         this.store.in('token', response.body.access_token)
-        this.$http.headers.common['Authorization'] =
-          'Bearer ' + response.body.access_token
         this.close()
       }, response => {
         alert('Login failed')
