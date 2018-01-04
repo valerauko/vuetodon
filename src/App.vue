@@ -3,12 +3,10 @@
     <login v-if="!loggedIn" :show="!loggedIn" @close="loggedIn = true" />
     <div v-if="loggedIn">
       <header>
-        <button title="Home"><span>Home</span></button>
-        <button title="Local"><span>Local</span></button>
-        <button title="Fed"><span>Fed</span></button>
-        <button title="Log out" @click="loggingOut = true">
-          <span>Log out</span>
-        </button>
+        <router-link to="/" title="Home"><span>Home</span></router-link>
+        <router-link to="/local" title="Local"><span>Local</span></router-link>
+        <router-link to="/fed" title="Fed"><span>Fed</span></router-link>
+        <a href="#" title="Log out" @click="loggingOut = true"><span>Log out</span></a>
       </header>
       <logout v-if="loggingOut" :show="loggingOut"
               @logout="logOut" @close="loggingOut = false" />
