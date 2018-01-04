@@ -1,13 +1,42 @@
 <template>
   <div id="app">
-    <h1>Vuetodon</h1>
-    <router-view/>
+    <login v-if="!loggedIn" :show="!loggedIn" @close="loggedIn = true" />
+    <div v-if="loggedIn">
+      <header>
+        <button title="Home"><span>Home</span></button>
+        <button title="Local"><span>Local</span></button>
+        <button title="Fed"><span>Fed</span></button>
+        <button title="Log out" @click="loggingOut = true">
+          <span>Log out</span>
+        </button>
+      </header>
+      <logout v-if="loggingOut" :show="loggingOut"
+              @logout="logOut" @close="loggingOut = false" />
+      <router-view/>
+    </div>
   </div>
 </template>
 
 <script>
+import Login from '@/components/Login'
+import Logout from '@/components/Logout'
 export default {
-  name: 'app'
+  name: 'app',
+  components: {
+    Login,
+    Logout
+  },
+  data () {
+    return {
+      loggingOut: false,
+      loggedIn: localStorage.getItem('token') != null
+    }
+  },
+  methods: {
+    logOut () {
+      this.loggedIn = false
+    }
+  }
 }
 </script>
 
