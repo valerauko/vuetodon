@@ -1,6 +1,7 @@
 <template>
   <div>
     <new-toot/>
+    <div>Currently racing past at {{tpm}} toot/min!</div>
     <ol>
       <li v-for="status in statuses">
         <one-status :status="status"></one-status>
@@ -10,17 +11,27 @@
 </template>
 
 <script>
-import OneStatus from './OneStatus'
+import OneStatus from '@/components/OneStatus'
 import NewToot from '@/components/NewToot'
+import * as Moment from 'moment'
 export default {
   name: 'Timeline',
   data () {
     return {
-      statuses: []
+      statuses: [],
+      seen: 0,
+      now: Moment()
+    }
+  },
+  computed: {
+    tpm () {
+      return Math.floor(
+        this.seen / Moment.duration(this.now.diff(this.started)).asMinutes()
+      )
     }
   },
   methods: {
-    read: function (endpoint) {
+    read (endpoint) {
       this.$http.get(this.endpoints[endpoint], {
         headers: { Authorization: 'Bearer ' + this.token }
       }).then(response => {
@@ -33,18 +44,17 @@ export default {
         console.log(response)
       })
     },
-    stream: function () {
-      if (this.token === '') {
-        return false
-      }
+    stream () {
       var sock = new WebSocket(this.endpoints.stream +
                                '?access_token=' + this.token +
-                               '&stream=user')
+                               '&stream=public')
       var listener = (event) => {
         event = JSON.parse(event.data)
         event.payload = JSON.parse(event.payload)
         switch (event.event) {
           case 'update':
+            this.seen++
+            this.now = Moment()
             this.statuses.unshift(event.payload)
             if (this.statuses.length > 3) {
               this.statuses = this.statuses.slice(0, 3)
@@ -59,21 +69,20 @@ export default {
       }
       sock.onmessage = listener
     }
-
   },
   components: {
     NewToot,
     OneStatus
   },
-  created: function () {
-    this.$router.push('Login') // redirect everything to login for now
+  created () {
+    this.started = Moment()
     this.token = ''
     this.endpoints = {
       home: 'https://pawoo.net/api/v1/timelines/home',
       stream: 'ws://pawoo.net/api/v1/streaming/'
     }
   },
-  mounted: function () {
+  mounted () {
     this.stream()
   }
 }
