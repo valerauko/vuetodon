@@ -33,11 +33,10 @@ export default {
   },
   watch: {
     '$route' (to, from) {
-      if (to === from) {
-        return true
-      }
       this.timeline = to.name.toLowerCase()
       this.statuses = []
+      this.seen = 0
+      this.started = Moment()
       this.socket.close()
       this.startStream()
     }
