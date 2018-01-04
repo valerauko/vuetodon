@@ -4,7 +4,7 @@
     <form>
       <input type="text" placeholder="Your instance"
              v-model="instance" @focus="focusInstance" @blur="blurInstance" />
-      <input type="text" v-model="username" placeholder="Username" />
+      <input type="text" v-model="email" placeholder="E-mail address" />
       <input type="password" v-model="password" placeholder="Password" />
       <button @click="login">Log in!</button>
     </form>
@@ -21,7 +21,7 @@ export default {
   data () {
     return {
       instance: '',
-      username: '',
+      email: '',
       password: ''
     }
   },
@@ -93,7 +93,7 @@ export default {
         client_id: instance.client_id,
         client_secret: instance.client_secret,
         grant_type: 'password',
-        username: this.username,
+        username: this.email,
         password: this.password,
         scope: ['read', 'write', 'follow'].join(' ')
       }).then(response => {
