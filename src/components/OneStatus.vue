@@ -4,7 +4,7 @@
       <div v-if="reblog">Boosted by
         <a :href="booster.url">{{ booster.display_name }}</a></div>
       <a :href="author.url">{{ author.display_name }}</a>
-      <a :href="or_boosted.url" :title="full_time">{{ display_time }}</a>
+      <a :href="orBoosted.url" :title="fullTime">{{ displayTime }}</a>
     </div>
     <section v-html="content"></section>
     <card v-if="has_card" :card="card"></card>
@@ -29,20 +29,20 @@ export default {
     reblog () {
       return !!this.status.reblog
     },
-    or_boosted () {
+    orBoosted () {
       return this.reblog ? this.status.reblog : this.status
     },
     author () {
-      return this.or_boosted.account
+      return this.orBoosted.account
     },
-    raw_time () {
-      return Moment(this.or_boosted.created_at)
+    rawTime () {
+      return Moment(this.orBoosted.created_at)
     },
-    full_time () {
-      return this.raw_time.format('Y MMM D, HH:mm:ss')
+    fullTime () {
+      return this.rawTime.format('Y MMM D, HH:mm:ss')
     },
-    display_time () {
-      return this.raw_time.fromNow()
+    displayTime () {
+      return this.rawTime.fromNow()
     },
     booster () {
       if (this.reblog) {
@@ -50,7 +50,7 @@ export default {
       }
     },
     content () {
-      return this.or_boosted.content
+      return this.orBoosted.content
     }
   },
   created () {
