@@ -23,8 +23,6 @@ export default {
   },
   data () {
     return {
-      has_card: false,
-      card: {}
     }
   },
   computed: {
@@ -56,19 +54,21 @@ export default {
     }
   },
   created () {
-    if (/<a href=[^>]+ rel="nofollow noopener"/.test(this.or_boosted.content)) {
-      // wait at least 10 seconds since toot creation to look at Card
-      setTimeout(this.fetch_card, 10000 - Moment().diff(this.raw_time))
+    this.initCard = function () {
+      if (/<a href=[^>]+ rel="nofollow noopener"/.test(this.orBoosted.content)) {
+        // wait at least 10 seconds since toot creation to look at Card
+        setTimeout(this.fetchCard, 10000 - Moment().diff(this.rawTime))
+      }
     }
+    this.initCard()
   },
   methods: {
-    fetch_card () {
+    fetchCard () {
       this.$http
           .get('https://pawoo.net/api/v1/statuses/' + this.status.id + '/card')
           .then(response => {
             if (response.body.url) {
-              this.card = response.body
-              this.has_card = true
+              this.status.card = response.body
             }
           }, response => {
             console.log('Failed to fetch card')

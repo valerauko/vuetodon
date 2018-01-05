@@ -4,7 +4,7 @@
     <div>Currently racing past at {{tpm}} toot/min!</div>
     <ol>
       <li v-for="status in statuses">
-        <one-status :status="status"></one-status>
+        <one-status :status.sync="status"></one-status>
       </li>
     </ol>
   </div>
