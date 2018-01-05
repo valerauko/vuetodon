@@ -6,8 +6,20 @@
       <a :href="author.url">{{ author.display_name }}</a>
       <a :href="orBoosted.url" :title="fullTime">{{ displayTime }}</a>
     </div>
-    <section v-html="content"></section>
-    <card v-if="has_card" :card="card"></card>
+    <section v-if="orBoosted.spoiler_text" v-html="orBoosted.spoiler_text"></section>
+    <section v-bind:class="{ nsfw: orBoosted.spoiler_text }"
+             v-swapLinks="swapLinks"
+             v-html="content"></section>
+    <section v-if="orBoosted.media_attachments.length > 0">
+      <a v-bind:class="{ nsfw: isNsfw }"
+         v-for="image in images"
+         :href="image.text_url">
+        <img :src="image.preview_url" />
+      </a>
+    </section>
+    <card v-bind:class="{ nsfw: isNsfw }"
+          v-if="status.card"
+          :card="status.card"></card>
     <div><button title="Reply" /><button title="Boost" /><button title="Star" /><button title="Etc" /></div>
   </article>
 </template>
@@ -21,8 +33,9 @@ export default {
   components: {
     Card
   },
-  data () {
-    return {
+  directives: {
+    swapLinks (el, binding) {
+      binding.value(el)
     }
   },
   computed: {
@@ -44,10 +57,17 @@ export default {
     displayTime () {
       return this.rawTime.fromNow()
     },
+    images () {
+      return this.orBoosted.media_attachments.length > 0 &&
+             this.orBoosted.media_attachments.filter(item => item.type === 'image')
+    },
     booster () {
       if (this.reblog) {
         return this.status.account
       }
+    },
+    isNsfw () {
+      return this.orBoosted.sensitive
     },
     content () {
       return this.orBoosted.content
@@ -73,6 +93,18 @@ export default {
           }, response => {
             console.log('Failed to fetch card')
           })
+    },
+    swapLinks (el) {
+      let links = el.querySelectorAll('a')
+      if (links.length < 1) { return true }
+      [...links].map(link => {
+        if (this.images && this.images.find(img => img.text_url === link.href)) {
+          link.innerHTML = 'AAA'
+        }
+        if (this.status.card && this.status.card.url === link.href) {
+          link.innerHTML = 'BBB'
+        }
+      })
     }
   }
 }
@@ -88,5 +120,22 @@ article {
 }
 article section a.noopener {
   display: none;
+}
+a {
+  display: inline-block
+}
+.nsfw {
+  background: #000;
+  transition: all .5s ease;
+}
+.nsfw > * {
+  opacity: 0;
+  transition: all .5s ease;
+}
+.nsfw:hover {
+  background: #111;
+}
+.nsfw:hover > * {
+  opacity: 1;
 }
 </style>
