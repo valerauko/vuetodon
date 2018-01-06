@@ -19,13 +19,13 @@ export default {
     return {
       statuses: [],
       newStatuses: [],
-      timeline: 'home'
+      scrolled: false
     }
   },
+  props: ['timeline'],
   watch: {
-    '$route' (to, from) {
+    timeline (to, from) {
       console.log('Changed route!')
-      this.timeline = to.name.toLowerCase()
       this.statuses = this.newStatuses = []
       this.socket.close()
       this.startStream()
