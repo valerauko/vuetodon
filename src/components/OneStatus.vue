@@ -18,8 +18,8 @@
       </a>
     </section>
     <card v-bind:class="{ nsfw: isNsfw }"
-          v-if="status.card"
-          :card="status.card"></card>
+          v-if="card"
+          :card="card"></card>
     <div><button title="Reply" /><button title="Boost" /><button title="Star" /><button title="Etc" /></div>
   </article>
 </template>
@@ -32,6 +32,11 @@ export default {
   props: ['status'],
   components: {
     Card
+  },
+  data () {
+    return {
+      card: {}
+    }
   },
   directives: {
     swapLinks (el, binding) {
@@ -74,24 +79,26 @@ export default {
     }
   },
   created () {
-    this.initCard = function () {
-      if (/<a href=[^>]+ rel="nofollow noopener"/.test(this.orBoosted.content)) {
-        // wait at least 10 seconds since toot creation to look at Card
-        setTimeout(this.fetchCard, 10000 - Moment().diff(this.rawTime))
-      }
+    if (/<a href=[^>]+ rel="nofollow noopener"/.test(this.orBoosted.content)) {
+      // wait at least 10 seconds since toot creation to look at Card
+      setTimeout(this.fetchCard, 10000 - Moment().diff(this.rawTime))
     }
-    this.initCard()
   },
   methods: {
-    fetchCard () {
+    fetchCard (attempts = 0) {
+      // console.log('Fetching card for toot#' + this.status.id)
       this.$http
           .get('https://pawoo.net/api/v1/statuses/' + this.status.id + '/card')
           .then(response => {
             if (response.body.url) {
-              this.status.card = response.body
+              this.card = response.body
             }
           }, response => {
-            console.log('Failed to fetch card')
+            if (attempts < 2) {
+              setTimeout(() => this.fetchCard(++attempts), 2000)
+            } else {
+              console.log('Failed to fetch card')
+            }
           })
     },
     swapLinks (el) {
