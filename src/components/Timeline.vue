@@ -3,8 +3,8 @@
     <new-toot/>
     <div>Currently racing past at {{tpm}} toot/min!</div>
     <ol>
-      <li v-for="status in statuses">
-        <one-status :status="status"></one-status>
+      <li v-for="status in statuses" :key="status.id">
+        <one-status :status.sync="status"></one-status>
       </li>
     </ol>
   </div>
@@ -33,11 +33,10 @@ export default {
   },
   watch: {
     '$route' (to, from) {
-      if (to === from) {
-        return true
-      }
       this.timeline = to.name.toLowerCase()
       this.statuses = []
+      this.seen = 0
+      this.started = Moment()
       this.socket.close()
       this.startStream()
     }

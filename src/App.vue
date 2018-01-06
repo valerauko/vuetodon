@@ -57,14 +57,6 @@ a:hover, a:active {
   text-decoration: underline;
 }
 
-.invisible {
-  display: none;
-}
-
-.ellipsis:after {
-  content: '…';
-}
-
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -72,5 +64,15 @@ a:hover, a:active {
   text-align: center;
   color: #999;
   margin-top: 60px;
+}
+
+/* HACK: no idea why, but unless it's here, p styles don't apply */
+article section.nsfw > p {
+  transition: .5s ease;
+  opacity: 0
+}
+
+article section.nsfw:hover > p {
+  opacity: 1
 }
 </style>
