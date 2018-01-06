@@ -3,12 +3,10 @@
     <login v-if="!loggedIn" :show="!loggedIn" @close="loggedIn = true" />
     <div v-if="loggedIn">
       <header>
-        <button title="Home"><span>Home</span></button>
-        <button title="Local"><span>Local</span></button>
-        <button title="Fed"><span>Fed</span></button>
-        <button title="Log out" @click="loggingOut = true">
-          <span>Log out</span>
-        </button>
+        <router-link to="/" title="Home"><span>Home</span></router-link>
+        <router-link to="/local" title="Local"><span>Local</span></router-link>
+        <router-link to="/fed" title="Fed"><span>Fed</span></router-link>
+        <a href="#" title="Log out" @click="loggingOut = true"><span>Log out</span></a>
       </header>
       <logout v-if="loggingOut" :show="loggingOut"
               @logout="logOut" @close="loggingOut = false" />
@@ -59,14 +57,6 @@ a:hover, a:active {
   text-decoration: underline;
 }
 
-.invisible {
-  display: none;
-}
-
-.ellipsis:after {
-  content: '…';
-}
-
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -74,5 +64,15 @@ a:hover, a:active {
   text-align: center;
   color: #999;
   margin-top: 60px;
+}
+
+/* HACK: no idea why, but unless it's here, p styles don't apply */
+article section.nsfw > p {
+  transition: .5s ease;
+  opacity: 0
+}
+
+article section.nsfw:hover > p {
+  opacity: 1
 }
 </style>

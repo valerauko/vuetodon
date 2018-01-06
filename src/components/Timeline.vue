@@ -1,10 +1,10 @@
 <template>
   <div>
     <new-toot/>
-    <div>Currently racing past at {{tpm}} toot/min!</div>
+    <button v-if="scrolled" @click="restartStream">Catch up at once!</button>
     <ol>
-      <li v-for="status in statuses">
-        <one-status :status="status"></one-status>
+      <li v-for="status in statuses" :key="status.id">
+        <one-status :status.sync="status"></one-status>
       </li>
     </ol>
   </div>
@@ -13,51 +13,93 @@
 <script>
 import OneStatus from '@/components/OneStatus'
 import NewToot from '@/components/NewToot'
-import * as Moment from 'moment'
+import config from '@/lib/config'
 export default {
   name: 'Timeline',
   data () {
     return {
       statuses: [],
-      seen: 0,
-      now: Moment()
+      newStatuses: [],
+      scrolled: false
     }
   },
-  computed: {
-    tpm () {
-      return Math.floor(
-        this.seen / Moment.duration(this.now.diff(this.started)).asMinutes()
-      )
+  props: ['timeline'],
+  watch: {
+    timeline (to, from) {
+      console.log('Changed route!')
+      this.statuses = this.newStatuses = []
+      this.socket.close()
+      this.startStream()
     }
   },
   methods: {
-    read (endpoint) {
-      this.$http.get(this.endpoints[endpoint], {
-        headers: { Authorization: 'Bearer ' + this.token }
+    scollHandler () {
+      let el = document.documentElement
+      // prevent spamming requests
+      if (this.fired) { return true }
+      // stop stream when scrolling
+      if (this.socket && typeof this.socket.close === 'function') {
+        this.socket.close()
+      }
+      this.scrolled = true
+      if (el.scrollTop === 0) {
+        this.scrolled = false
+        this.readUp()
+      } else if (el.scrollTop + el.clientHeight >= el.offsetHeight) {
+        this.readDown()
+      }
+    },
+    readScroll (way, pass) {
+      return this.read(config.scrollLimit, pass).then(() => {
+        let statuses = [this.statuses, this.newStatuses]
+        // the direction we're reading just changes which gets concatenated to which
+        this.statuses = statuses[+(way === 'up')]
+                          .concat(statuses[+(way !== 'up')])
+        this.fired = false
+      })
+    },
+    readDown () {
+      let opt = {}
+      if (this.statuses.length > 0) {
+        opt = { max_id: this.statuses[this.statuses.length - 1].id }
+      }
+      return this.readScroll('down', opt)
+    },
+    readUp () {
+      return this.readScroll('up',
+        { since_id: this.statuses[0] && this.statuses[0].id }
+      ).then(() => {
+        // restart stream if reached top
+        if (this.newStatuses.length < config.scrollLimit) {
+          this.stream()
+        } else {
+          window.scrollTo(0, 10)
+        }
+      })
+    },
+    read (howMany = config.statusLimit, option = {}) {
+      let endpoint = this.endpoints.rest[this.timeline]
+      return this.$http.get(endpoint, {
+        params: Object.assign({ limit: howMany }, option),
+        headers: { Authorization: 'Bearer ' + config.token }
       }).then(response => {
-        console.log(endpoint + ' ' + response.status)
         var result = JSON.parse(response.bodyText)
-        console.log(response)
-        this.statuses = result
+        this.newStatuses = result
       }, response => {
         console.log(endpoint + ' request failed')
         console.log(response)
       })
     },
     stream () {
-      var sock = new WebSocket(this.endpoints.stream +
-                               '?access_token=' + this.token +
-                               '&stream=public')
-      var listener = (event) => {
+      this.socket = new WebSocket(this.endpoints.stream[this.timeline])
+      const listener = (event) => {
         event = JSON.parse(event.data)
         event.payload = JSON.parse(event.payload)
         switch (event.event) {
           case 'update':
-            this.seen++
-            this.now = Moment()
             this.statuses.unshift(event.payload)
-            if (this.statuses.length > 3) {
-              this.statuses = this.statuses.slice(0, 3)
+            if (this.statuses.length > config.statusLimit) {
+              this.statuses = this.statuses.slice(0, config.statusLimit)
             }
             break
           case 'delete':
@@ -67,7 +109,14 @@ export default {
             break
         }
       }
-      sock.onmessage = listener
+      this.socket.onmessage = listener
+    },
+    startStream () {
+      this.readDown().then(this.stream)
+    },
+    restartStream () {
+      window.scrollTo(0, 0)
+      this.startStream()
     }
   },
   components: {
@@ -75,15 +124,31 @@ export default {
     OneStatus
   },
   created () {
-    this.started = Moment()
-    this.token = ''
+    let base = config.instance + '/api/v1'
+    let apiBase = base + '/timelines'
+    let streamBase = base.replace(/^https?/i, 'ws') +
+                     '/streaming?access_token=' + config.token + '&stream='
     this.endpoints = {
-      home: 'https://pawoo.net/api/v1/timelines/home',
-      stream: 'ws://pawoo.net/api/v1/streaming/'
+      rest: {
+        home: apiBase + '/home',
+        fed: apiBase + '/public',
+        local: apiBase + '/public?local=true'
+      },
+      stream: {
+        home: streamBase + 'user',
+        fed: streamBase + 'public',
+        local: streamBase + 'public:local'
+      }
     }
+
+    this.fired = false
+    window.addEventListener('scroll', this.scollHandler)
+  },
+  destroyed () {
+    window.removeEventListener('scroll', this.scollHandler)
   },
   mounted () {
-    this.stream()
+    this.startStream()
   }
 }
 </script>

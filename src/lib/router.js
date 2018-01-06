@@ -9,8 +9,21 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Timeline',
-      component: Timeline
+      name: 'Home',
+      component: Timeline,
+      props: { timeline: 'home' }
+    },
+    {
+      path: '/local',
+      name: 'Local',
+      component: Timeline,
+      props: { timeline: 'local' }
+    },
+    {
+      path: '/fed',
+      name: 'Fed',
+      component: Timeline,
+      props: { timeline: 'fed' }
     },
     {
       path: '/login',
