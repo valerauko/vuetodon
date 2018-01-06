@@ -10,17 +10,20 @@ export default new Router({
     {
       path: '/',
       name: 'Home',
-      component: Timeline
+      component: Timeline,
+      props: { timeline: 'home' }
     },
     {
       path: '/local',
       name: 'Local',
-      component: Timeline
+      component: Timeline,
+      props: { timeline: 'local' }
     },
     {
       path: '/fed',
       name: 'Fed',
-      component: Timeline
+      component: Timeline,
+      props: { timeline: 'fed' }
     },
     {
       path: '/login',
