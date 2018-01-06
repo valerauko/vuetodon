@@ -118,23 +118,37 @@ article {
   margin: .5em auto;
   padding: 1em;
 }
+
 article section a.noopener {
   display: none;
 }
+
+.invisible {
+  display: none;
+}
+
+.ellipsis:after {
+  content: '…';
+}
+
 a {
   display: inline-block
 }
+
 .nsfw {
   background: #000;
   transition: all .5s ease;
 }
+
 .nsfw > * {
   opacity: 0;
   transition: all .5s ease;
 }
+
 .nsfw:hover {
   background: #111;
 }
+
 .nsfw:hover > * {
   opacity: 1;
 }
