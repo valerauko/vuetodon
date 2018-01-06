@@ -1,6 +1,7 @@
 <template>
   <div>
     <new-toot/>
+    <button v-if="scrolled" @click="restartStream">Catch up at once!</button>
     <ol>
       <li v-for="status in statuses" :key="status.id">
         <one-status :status.sync="status"></one-status>
@@ -40,7 +41,9 @@ export default {
       if (this.socket && typeof this.socket.close === 'function') {
         this.socket.close()
       }
+      this.scrolled = true
       if (el.scrollTop === 0) {
+        this.scrolled = false
         this.readUp()
       } else if (el.scrollTop + el.clientHeight >= el.offsetHeight) {
         this.readDown()
@@ -69,6 +72,8 @@ export default {
         // restart stream if reached top
         if (this.newStatuses.length < config.scrollLimit) {
           this.stream()
+        } else {
+          window.scrollTo(0, 10)
         }
       })
     },
@@ -108,6 +113,10 @@ export default {
     },
     startStream () {
       this.readDown().then(this.stream)
+    },
+    restartStream () {
+      window.scrollTo(0, 0)
+      this.startStream()
     }
   },
   components: {
