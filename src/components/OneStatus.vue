@@ -27,6 +27,7 @@
 <script>
 import * as Moment from 'moment'
 import Card from '@/components/Card'
+import config from '@/lib/config'
 export default {
   name: 'OneStatus',
   props: ['status'],
@@ -88,7 +89,7 @@ export default {
     fetchCard (attempts = 0) {
       // console.log('Fetching card for toot#' + this.status.id)
       this.$http
-          .get('https://pawoo.net/api/v1/statuses/' + this.status.id + '/card')
+          .get(config.instance + '/api/v1/statuses/' + this.status.id + '/card')
           .then(response => {
             if (response.body.url) {
               this.card = response.body

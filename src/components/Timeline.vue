@@ -12,7 +12,7 @@
 <script>
 import OneStatus from '@/components/OneStatus'
 import NewToot from '@/components/NewToot'
-import * as Moment from 'moment'
+import config from '@/lib/config'
 export default {
   name: 'Timeline',
   data () {
@@ -36,7 +36,7 @@ export default {
       let endpoint = this.endpoints.rest[this.timeline]
       return this.$http.get(endpoint, {
         params: { limit: this.statusLimit },
-        headers: { Authorization: 'Bearer ' + this.token }
+        headers: { Authorization: 'Bearer ' + config.token }
       }).then(response => {
         var result = JSON.parse(response.bodyText)
         this.statuses = result
@@ -53,8 +53,8 @@ export default {
         switch (event.event) {
           case 'update':
             this.statuses.unshift(event.payload)
-            if (this.statuses.length > this.statusLimit) {
-              this.statuses = this.statuses.slice(0, this.statusLimit)
+            if (this.statuses.length > config.statusLimit) {
+              this.statuses = this.statuses.slice(0, config.statusLimit)
             }
             break
           case 'delete':
@@ -72,13 +72,10 @@ export default {
     OneStatus
   },
   created () {
-    this.statusLimit = 20
-    this.token = JSON.parse(localStorage.getItem('token'))
-    let instance = JSON.parse(localStorage.getItem('instance'))
-    let base = instance + '/api/v1'
+    let base = config.instance + '/api/v1'
     let apiBase = base + '/timelines'
     let streamBase = base.replace(/^https?/i, 'ws') +
-                     '/streaming?access_token=' + this.token + '&stream='
+                     '/streaming?access_token=' + config.token + '&stream='
     this.endpoints = {
       rest: {
         home: apiBase + '/home',
