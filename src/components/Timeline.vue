@@ -1,7 +1,6 @@
 <template>
   <div>
     <new-toot/>
-    <div>Currently racing past at {{tpm}} toot/min!</div>
     <ol>
       <li v-for="status in statuses" :key="status.id">
         <one-status :status.sync="status"></one-status>
@@ -19,24 +18,12 @@ export default {
   data () {
     return {
       statuses: [],
-      seen: 0,
-      now: Moment(),
       timeline: 'home'
-    }
-  },
-  computed: {
-    tpm () {
-      return Math.floor(
-        this.seen / Moment.duration(this.now.diff(this.started)).asMinutes()
-      )
     }
   },
   watch: {
     '$route' (to, from) {
       this.timeline = to.name.toLowerCase()
-      this.statuses = []
-      this.seen = 0
-      this.started = Moment()
       this.socket.close()
       this.startStream()
     }
@@ -65,8 +52,6 @@ export default {
         event.payload = JSON.parse(event.payload)
         switch (event.event) {
           case 'update':
-            this.seen++
-            this.now = Moment()
             this.statuses.unshift(event.payload)
             if (this.statuses.length > this.statusLimit) {
               this.statuses = this.statuses.slice(0, this.statusLimit)
@@ -88,7 +73,6 @@ export default {
   },
   created () {
     this.statusLimit = 20
-    this.started = Moment()
     this.token = JSON.parse(localStorage.getItem('token'))
     let instance = JSON.parse(localStorage.getItem('instance'))
     let base = instance + '/api/v1'
