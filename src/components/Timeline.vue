@@ -18,28 +18,68 @@ export default {
   data () {
     return {
       statuses: [],
+      newStatuses: [],
       timeline: 'home'
     }
   },
   watch: {
     '$route' (to, from) {
+      console.log('Changed route!')
       this.timeline = to.name.toLowerCase()
+      this.statuses = this.newStatuses = []
       this.socket.close()
       this.startStream()
     }
   },
   methods: {
-    startStream () {
-      this.read().then(this.stream)
+    scollHandler () {
+      let el = document.documentElement
+      // prevent spamming requests
+      if (this.fired) { return true }
+      // stop stream when scrolling
+      if (this.socket && typeof this.socket.close === 'function') {
+        this.socket.close()
+      }
+      if (el.scrollTop === 0) {
+        this.readUp()
+      } else if (el.scrollTop + el.clientHeight >= el.offsetHeight) {
+        this.readDown()
+      }
     },
-    read () {
+    readScroll (way, pass) {
+      return this.read(config.scrollLimit, pass).then(() => {
+        let statuses = [this.statuses, this.newStatuses]
+        // the direction we're reading just changes which gets concatenated to which
+        this.statuses = statuses[+(way === 'up')]
+                          .concat(statuses[+(way !== 'up')])
+        this.fired = false
+      })
+    },
+    readDown () {
+      let opt = {}
+      if (this.statuses.length > 0) {
+        opt = { max_id: this.statuses[this.statuses.length - 1].id }
+      }
+      return this.readScroll('down', opt)
+    },
+    readUp () {
+      return this.readScroll('up',
+        { since_id: this.statuses[0] && this.statuses[0].id }
+      ).then(() => {
+        // restart stream if reached top
+        if (this.newStatuses.length < config.scrollLimit) {
+          this.stream()
+        }
+      })
+    },
+    read (howMany = config.statusLimit, option = {}) {
       let endpoint = this.endpoints.rest[this.timeline]
       return this.$http.get(endpoint, {
-        params: { limit: this.statusLimit },
+        params: Object.assign({ limit: howMany }, option),
         headers: { Authorization: 'Bearer ' + config.token }
       }).then(response => {
         var result = JSON.parse(response.bodyText)
-        this.statuses = result
+        this.newStatuses = result
       }, response => {
         console.log(endpoint + ' request failed')
         console.log(response)
@@ -65,6 +105,9 @@ export default {
         }
       }
       this.socket.onmessage = listener
+    },
+    startStream () {
+      this.readDown().then(this.stream)
     }
   },
   components: {
@@ -88,6 +131,12 @@ export default {
         local: streamBase + 'public:local'
       }
     }
+
+    this.fired = false
+    window.addEventListener('scroll', this.scollHandler)
+  },
+  destroyed () {
+    window.removeEventListener('scroll', this.scollHandler)
   },
   mounted () {
     this.startStream()
