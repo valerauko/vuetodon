@@ -31,6 +31,7 @@
         @click="toggleStar"
       /><button title="Delete"
         v-if="author.acct === $root.$data.store.currentUser.acct"
+        class="delete"
         @click="destroy"
       />
     </div>
@@ -224,6 +225,14 @@ article div button.boost {
 
 article div button.star {
   background-image: url('/static/icons/star.png')
+}
+
+article div button.reply {
+  background-image: url('/static/icons/reply.png')
+}
+
+article div button.delete {
+  background-image: url('/static/icons/delete.png')
 }
 
 .nsfw {
