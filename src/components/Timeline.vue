@@ -2,7 +2,7 @@
   <div>
     <new-toot/>
     <button v-if="scrolled" @click="restartStream">Catch up at once!</button>
-    <ol>
+    <ol @deleteToot="deleteToot" @newToot="newToot">
       <li v-for="status in statuses" :key="status.id">
         <one-status :status.sync="status"></one-status>
       </li>
@@ -38,7 +38,7 @@ export default {
       // prevent spamming requests
       if (this.fired) { return true }
       // stop stream when scrolling
-      if (this.socket && typeof this.socket.close === 'function') {
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
         this.socket.close()
       }
       this.scrolled = true
@@ -97,19 +97,27 @@ export default {
         event.payload = JSON.parse(event.payload)
         switch (event.event) {
           case 'update':
-            this.statuses.unshift(event.payload)
-            if (this.statuses.length > config.statusLimit) {
-              this.statuses = this.statuses.slice(0, config.statusLimit)
-            }
+            this.newToot(event.payload)
             break
           case 'delete':
-            this.statuses = this.statuses.filter(
-              elem => elem.id !== event.payload
-            )
+            this.deleteToot(event.payload)
             break
         }
       }
       this.socket.onmessage = listener
+      this.socket.onerror = error => console.log(error)
+    },
+    newToot (status) {
+      this.statuses.filter(toot => toot.id !== status.id).unshift(status)
+      if (this.statuses.length > config.statusLimit) {
+        this.statuses = this.statuses.slice(0, config.statusLimit)
+      }
+    },
+    deleteToot (id) {
+      this.statuses = this.statuses.filter(elem => {
+        let ref = elem.reblog ? elem.reblog.id : elem.id
+        return ref !== id
+      })
     },
     startStream () {
       this.readDown().then(this.stream)
@@ -145,6 +153,7 @@ export default {
     window.addEventListener('scroll', this.scollHandler)
   },
   destroyed () {
+    this.socket.close()
     window.removeEventListener('scroll', this.scollHandler)
   },
   mounted () {

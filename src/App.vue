@@ -89,4 +89,13 @@ article section.nsfw > p {
 article section.nsfw:hover > p {
   opacity: 1
 }
+
+button {
+  height: 2em;
+  padding: 0;
+  margin: 0 0.5em;
+  background: #111;
+  border: 1px solid #999;
+  border-radius: 1em;
+}
 </style>

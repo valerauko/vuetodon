@@ -21,14 +21,17 @@
           v-if="card"
           :card="card"></card>
     <div>
-      <button title="Reply"
+      <button title="Reply" class="reply"
       /><button :title="status.reblogged ? 'Unboost' : 'Boost'"
         :disabled="!isPublic"
+        :class="['boost', status.reblogged ? 'active' : '']"
         @click="toggleBoost"
-      /><button :title="status.reblogged ? 'Unstar' : 'Star'"
+      /><button :title="status.favourited ? 'Unstar' : 'Star'"
+        :class="['star', status.favourited ? 'active' : '']"
         @click="toggleStar"
       /><button title="Delete"
         v-if="author.acct === $root.$data.store.currentUser.acct"
+        class="delete"
         @click="destroy"
       />
     </div>
@@ -112,7 +115,9 @@ export default {
       }
       this.$http.delete(this.endpoint, {
         headers: { Authorization: 'Bearer ' + config.token }
-      }).then(_ => {}, response => console.log('Failed to delete toot'))
+      }).then(_ => {
+        this.$emit('deleteToot', this.status.id)
+      }, response => console.log('Failed to delete toot'))
     },
     toggleBoost () {
       if (!this.isPublic) {
@@ -197,6 +202,33 @@ article section a.noopener {
 
 a {
   display: inline-block
+}
+
+article div button {
+  width: 2em;
+  transition: all .5s ease;
+  background: center center / 75% no-repeat #666;
+}
+
+article div button.active {
+  transform: rotate(360deg);
+  background-color: #ccc
+}
+
+article div button.boost {
+  background-image: url('/static/icons/boost.png')
+}
+
+article div button.star {
+  background-image: url('/static/icons/star.png')
+}
+
+article div button.reply {
+  background-image: url('/static/icons/reply.png')
+}
+
+article div button.delete {
+  background-image: url('/static/icons/delete.png')
 }
 
 .nsfw {
