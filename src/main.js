@@ -12,6 +12,9 @@ Vue.use(VueResource)
 new Vue({
   el: '#app',
   router,
+  data: {
+    store: {}
+  },
   template: '<App/>',
   components: { App }
 })

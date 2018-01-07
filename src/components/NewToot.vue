@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import config from '@/lib/config'
 export default {
   name: 'NewToot',
   data () {
@@ -15,18 +16,16 @@ export default {
   },
   methods: {
     send: function () {
-      console.log('Attempting toot.')
-      this.$http.post(this.endpoints.toot, { status: this.message }).then(response => {
-        console.log('Successfully tooted.')
-      }, response => {
-        console.log('Request failed.')
-        console.log(response)
-      })
+      this.$http.post(this.endpoints.toot, {
+        status: this.message
+      }, {
+        headers: { Authorization: 'Bearer ' + config.token }
+      }).then(_ => {}, response => console.log('Request failed.'))
     }
   },
   created: function () {
     this.endpoints = {
-      toot: 'https://pawoo.net/api/v1/statuses'
+      toot: config.instance + '/api/v1/statuses'
     }
   }
 }

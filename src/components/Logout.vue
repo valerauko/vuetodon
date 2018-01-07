@@ -23,6 +23,7 @@ export default {
     },
     logOut () {
       this.$emit('logout')
+      delete this.$root.$data.store.currentUser
       localStorage.removeItem('token')
       console.log('Logout successful')
       this.close()
