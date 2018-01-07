@@ -25,7 +25,8 @@
       /><button :title="status.reblogged ? 'Unboost' : 'Boost'"
         :disabled="!isPublic"
         @click="toggleBoost"
-      /><button title="Star"
+      /><button :title="status.reblogged ? 'Unstar' : 'Star'"
+        @click="toggleStar"
       /><button title="Delete"
         v-if="author.acct === $root.$data.store.currentUser.acct"
         @click="destroy"
@@ -126,6 +127,17 @@ export default {
         this.$http.post(this.endpoint + '/reblog', {}, {
           headers: { Authorization: 'Bearer ' + config.token }
         }).then(_ => { this.status.reblogged = true }, _ => {})
+      }
+    },
+    toggleStar () {
+      if (this.status.favourited) {
+        this.$http.post(this.endpoint + '/unfavourite', {}, {
+          headers: { Authorization: 'Bearer ' + config.token }
+        }).then(_ => { this.status.favourited = false }, _ => {})
+      } else {
+        this.$http.post(this.endpoint + '/favourite', {}, {
+          headers: { Authorization: 'Bearer ' + config.token }
+        }).then(_ => { this.status.favourited = true }, _ => {})
       }
     },
     fetchCard (attempts = 0) {
