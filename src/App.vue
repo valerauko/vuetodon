@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" @login="updateCurrentUser">
     <login v-if="!loggedIn" :show="!loggedIn" @close="loggedIn = true" />
     <div v-if="loggedIn">
       <header>
@@ -10,7 +10,7 @@
       </header>
       <logout v-if="loggingOut" :show="loggingOut"
               @logout="logOut" @close="loggingOut = false" />
-      <router-view/>
+      <router-view />
     </div>
   </div>
 </template>
@@ -18,6 +18,7 @@
 <script>
 import Login from '@/components/Login'
 import Logout from '@/components/Logout'
+import config from '@/lib/config'
 export default {
   name: 'app',
   components: {
@@ -33,6 +34,19 @@ export default {
   methods: {
     logOut () {
       this.loggedIn = false
+    },
+    updateCurrentUser () {
+      this.$http
+          .get(config.instance + '/api/v1/accounts/verify_credentials', {
+            headers: { Authorization: 'Bearer ' + config.token }
+          }).then(response => {
+            this.$root.$data.store.currentUser = response.body
+          }, response => console.log('Failed to fetch current user'))
+    }
+  },
+  created () {
+    if (this.loggedIn && !this.$root.$data.store.currentUser) {
+      this.updateCurrentUser()
     }
   }
 }
