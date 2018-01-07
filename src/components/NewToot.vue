@@ -1,9 +1,13 @@
 <template>
-  <form>
+  <form @submit="catchSubmit" @keydown.ctrl.enter="send">
     <textarea placeholder="Toot something!"
       v-model="message"
       @paste="onPaste"
     ></textarea>
+    <input type="file" multiple
+      @change="onSelectFile"
+      :disabled="uploads.length > 3"
+      accept="image/jpeg,image/png,image/gif" />
     <div v-if="uploads.length > 0">
       <template v-for="image in uploads">
         <img :src="image.preview_url" />
@@ -26,14 +30,31 @@ export default {
   },
   methods: {
     send () {
+      if (!this.message.length && !this.uploads.length) {
+        return true
+      }
       this.$http.post(this.endpoints.toot, {
         status: this.message,
         media_ids: this.uploads.slice(0, 4).map(upload => upload.id)
       }, {
         headers: { Authorization: 'Bearer ' + config.token }
-      }).then(_ => {}, response => console.log('Request failed.'))
-      this.message = ''
-      this.uploads = []
+      }).then(response => {
+        this.message = ''
+        this.uploads = []
+        this.$emit('newToot', response.body)
+      }, response => console.log('Request failed.'))
+    },
+    catchSubmit (e) {
+      e.preventDefault()
+      this.send()
+    },
+    onSelectFile (e) {
+      let files = e.target.files || e.dataTransfer.files
+      if (!files.length) {
+        return true
+      }
+      [...files].map(this.uploadOne)
+      files = []
     },
     onPaste (e) {
       if (!e.clipboardData.items || this.uploads.length > 3) {
@@ -46,7 +67,7 @@ export default {
     },
     uploadOne (image) {
       let formData = new FormData()
-      formData.append('file', image.getAsFile())
+      formData.append('file', image instanceof File ? image : image.getAsFile())
       this.$http.post(this.endpoints.media, formData, { headers: {
         Authorization: 'Bearer ' + config.token,
         'Content-Type': 'multipart/form-data'
@@ -77,5 +98,10 @@ textarea {
   width: 30vw;
   font: inherit;
   color: #fff;
+}
+button {
+  padding: 0 1em;
+  background: #666;
+  color: #111;
 }
 </style>
