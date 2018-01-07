@@ -108,10 +108,9 @@ export default {
       this.socket.onerror = error => console.log(error)
     },
     newToot (status) {
-      this.statuses.filter(toot => toot.id !== status.id).unshift(status)
-      if (this.statuses.length > config.statusLimit) {
-        this.statuses = this.statuses.slice(0, config.statusLimit)
-      }
+      this.statuses = [status,
+                       ...this.statuses.filter(toot => toot.id !== status.id)
+                                       .slice(0, config.statusLimit - 1)]
     },
     deleteToot (id) {
       this.statuses = this.statuses.filter(elem => {
