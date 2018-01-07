@@ -38,7 +38,7 @@ export default {
       // prevent spamming requests
       if (this.fired) { return true }
       // stop stream when scrolling
-      if (this.socket && typeof this.socket.close === 'function') {
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
         this.socket.close()
       }
       this.scrolled = true
@@ -112,6 +112,7 @@ export default {
         }
       }
       this.socket.onmessage = listener
+      this.socket.onerror = error => console.log(error)
     },
     startStream () {
       this.readDown().then(this.stream)
@@ -147,6 +148,7 @@ export default {
     window.addEventListener('scroll', this.scollHandler)
   },
   destroyed () {
+    this.socket.close()
     window.removeEventListener('scroll', this.scollHandler)
   },
   mounted () {
