@@ -20,7 +20,14 @@
     <card v-bind:class="{ nsfw: isNsfw }"
           v-if="card"
           :card="card"></card>
-    <div><button title="Reply" /><button title="Boost" /><button title="Star" /><button title="Etc" /></div>
+    <div>
+      <button title="Reply"
+      /><button title="Boost"
+      /><button title="Star"
+      /><button title="Delete"
+        v-if="author.acct == $root.$data.store.currentUser.acct"
+      />
+    </div>
   </article>
 </template>
 
