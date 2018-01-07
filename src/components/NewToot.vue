@@ -1,5 +1,5 @@
 <template>
-  <form @submit="catchSubmit" @keydown.ctrl.enter="send">
+  <form @submit.prevent="send" @keydown.ctrl.enter.prevent="send">
     <textarea placeholder="Toot something!"
       v-model="message"
       @paste="onPaste"
@@ -43,10 +43,6 @@ export default {
         this.uploads = []
         this.$emit('newToot', response.body)
       }, response => console.log('Request failed.'))
-    },
-    catchSubmit (e) {
-      e.preventDefault()
-      this.send()
     },
     onSelectFile (e) {
       let files = e.target.files || e.dataTransfer.files
