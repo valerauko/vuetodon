@@ -27,13 +27,16 @@ export default {
   methods: {
     send () {
       this.$http.post(this.endpoints.toot, {
-        status: this.message
+        status: this.message,
+        media_ids: this.uploads.slice(0, 4).map(upload => upload.id)
       }, {
         headers: { Authorization: 'Bearer ' + config.token }
       }).then(_ => {}, response => console.log('Request failed.'))
+      this.message = ''
+      this.uploads = []
     },
     onPaste (e) {
-      if (!e.clipboardData.items) {
+      if (!e.clipboardData.items || this.uploads.length > 3) {
         return true
       }
       let images = [...e.clipboardData.items].filter(file => {
