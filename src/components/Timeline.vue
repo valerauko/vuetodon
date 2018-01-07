@@ -97,7 +97,9 @@ export default {
         event.payload = JSON.parse(event.payload)
         switch (event.event) {
           case 'update':
-            this.statuses.unshift(event.payload)
+            this.statuses.filter(
+              toot => toot.id !== event.payload.id
+            ).unshift(event.payload)
             if (this.statuses.length > config.statusLimit) {
               this.statuses = this.statuses.slice(0, config.statusLimit)
             }
