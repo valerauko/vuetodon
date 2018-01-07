@@ -115,7 +115,9 @@ export default {
       }
       this.$http.delete(this.endpoint, {
         headers: { Authorization: 'Bearer ' + config.token }
-      }).then(_ => {}, response => console.log('Failed to delete toot'))
+      }).then(_ => {
+        this.$emit('deleteToot', this.status.id)
+      }, response => console.log('Failed to delete toot'))
     },
     toggleBoost () {
       if (!this.isPublic) {
