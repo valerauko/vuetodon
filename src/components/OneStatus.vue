@@ -105,9 +105,7 @@ export default {
       }
       this.$http.delete(this.endpoint, {
         headers: { Authorization: 'Bearer ' + config.token }
-      }).then(response => {
-        console.log('Deleted toot')
-      }, response => console.log('Failed to delete toot'))
+      }).then(_ => {}, response => console.log('Failed to delete toot'))
     },
     fetchCard (attempts = 0) {
       // console.log('Fetching card for toot#' + this.status.id)

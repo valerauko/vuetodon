@@ -16,17 +16,11 @@ export default {
   },
   methods: {
     send: function () {
-      console.log('Attempting toot.')
       this.$http.post(this.endpoints.toot, {
         status: this.message
       }, {
         headers: { Authorization: 'Bearer ' + config.token }
-      }).then(response => {
-        console.log('Successfully tooted.')
-      }, response => {
-        console.log('Request failed.')
-        console.log(response)
-      })
+      }).then(_ => {}, response => console.log('Request failed.'))
     }
   },
   created: function () {
