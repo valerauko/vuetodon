@@ -21,11 +21,13 @@
           v-if="card"
           :card="card"></card>
     <div>
-      <button title="Reply"
+      <button title="Reply" class="reply"
       /><button :title="status.reblogged ? 'Unboost' : 'Boost'"
         :disabled="!isPublic"
+        :class="['boost', status.reblogged ? 'active' : '']"
         @click="toggleBoost"
-      /><button :title="status.reblogged ? 'Unstar' : 'Star'"
+      /><button :title="status.favourited ? 'Unstar' : 'Star'"
+        :class="['star', status.favourited ? 'active' : '']"
         @click="toggleStar"
       /><button title="Delete"
         v-if="author.acct === $root.$data.store.currentUser.acct"
@@ -197,6 +199,31 @@ article section a.noopener {
 
 a {
   display: inline-block
+}
+
+article div button {
+  height: 2em;
+  width: 2em;
+  padding: 0;
+  margin: 0 0.5em;
+  background: #111;
+  border: 1px solid #999;
+  border-radius: 1em;
+  transition: all .5s ease;
+  background: center center / 75% no-repeat #666;
+}
+
+article div button.active {
+  transform: rotate(360deg);
+  background-color: #ccc
+}
+
+article div button.boost {
+  background-image: url('/static/icons/boost.png')
+}
+
+article div button.star {
+  background-image: url('/static/icons/star.png')
 }
 
 .nsfw {
