@@ -22,8 +22,11 @@
           :card="card"></card>
     <div>
       <button title="Reply"
-      /><button title="Boost"
-      /><button title="Star"
+      /><button :title="status.reblogged ? 'Unboost' : 'Boost'"
+        :disabled="!isPublic"
+        @click="toggleBoost"
+      /><button :title="status.reblogged ? 'Unstar' : 'Star'"
+        @click="toggleStar"
       /><button title="Delete"
         v-if="author.acct === $root.$data.store.currentUser.acct"
         @click="destroy"
@@ -55,6 +58,10 @@ export default {
   computed: {
     reblog () {
       return !!this.status.reblog
+    },
+    isPublic () {
+      return this.status.visibility === 'public' &&
+             this.reblog ? this.status.reblog.visibility === 'public' : true
     },
     orBoosted () {
       return this.reblog ? this.status.reblog : this.status
@@ -106,6 +113,32 @@ export default {
       this.$http.delete(this.endpoint, {
         headers: { Authorization: 'Bearer ' + config.token }
       }).then(_ => {}, response => console.log('Failed to delete toot'))
+    },
+    toggleBoost () {
+      if (!this.isPublic) {
+        console.log('Can\'t boost private toot')
+        return false
+      }
+      if (this.status.reblogged) {
+        this.$http.post(this.endpoint + '/unreblog', {}, {
+          headers: { Authorization: 'Bearer ' + config.token }
+        }).then(_ => { this.status.reblogged = false }, _ => {})
+      } else {
+        this.$http.post(this.endpoint + '/reblog', {}, {
+          headers: { Authorization: 'Bearer ' + config.token }
+        }).then(_ => { this.status.reblogged = true }, _ => {})
+      }
+    },
+    toggleStar () {
+      if (this.status.favourited) {
+        this.$http.post(this.endpoint + '/unfavourite', {}, {
+          headers: { Authorization: 'Bearer ' + config.token }
+        }).then(_ => { this.status.favourited = false }, _ => {})
+      } else {
+        this.$http.post(this.endpoint + '/favourite', {}, {
+          headers: { Authorization: 'Bearer ' + config.token }
+        }).then(_ => { this.status.favourited = true }, _ => {})
+      }
     },
     fetchCard (attempts = 0) {
       // console.log('Fetching card for toot#' + this.status.id)
