@@ -20,7 +20,21 @@
     <card v-bind:class="{ nsfw: isNsfw }"
           v-if="card"
           :card="card"></card>
-    <div><button title="Reply" /><button title="Boost" /><button title="Star" /><button title="Etc" /></div>
+    <div>
+      <button title="Reply" class="reply"
+      /><button :title="status.reblogged ? 'Unboost' : 'Boost'"
+        :disabled="!isPublic"
+        :class="['boost', status.reblogged ? 'active' : '']"
+        @click="toggleBoost"
+      /><button :title="status.favourited ? 'Unstar' : 'Star'"
+        :class="['star', status.favourited ? 'active' : '']"
+        @click="toggleStar"
+      /><button title="Delete"
+        v-if="author.acct === $root.$data.store.currentUser.acct"
+        class="delete"
+        @click="destroy"
+      />
+    </div>
   </article>
 </template>
 
@@ -47,6 +61,10 @@ export default {
   computed: {
     reblog () {
       return !!this.status.reblog
+    },
+    isPublic () {
+      return this.status.visibility === 'public' &&
+             this.reblog ? this.status.reblog.visibility === 'public' : true
     },
     orBoosted () {
       return this.reblog ? this.status.reblog : this.status
@@ -84,12 +102,55 @@ export default {
       // wait at least 10 seconds since toot creation to look at Card
       setTimeout(this.fetchCard, 10000 - Moment().diff(this.rawTime))
     }
+    this.endpoint = config.instance + '/api/v1/statuses/' + this.status.id
   },
   methods: {
+    destroy () {
+      if (!confirm('Are you sure you want to delete this toot?')) {
+        return true
+      }
+      if (this.author.acct !== this.$root.$data.store.currentUser.acct) {
+        console.log('Can\'t delete someone else\'s toot')
+        return false
+      }
+      this.$http.delete(this.endpoint, {
+        headers: { Authorization: 'Bearer ' + config.token }
+      }).then(_ => {
+        this.$emit('deleteToot', this.status.id)
+      }, response => console.log('Failed to delete toot'))
+    },
+    toggleBoost () {
+      if (!this.isPublic) {
+        console.log('Can\'t boost private toot')
+        return false
+      }
+      if (this.status.reblogged) {
+        this.$http.post(this.endpoint + '/unreblog', {}, {
+          headers: { Authorization: 'Bearer ' + config.token }
+        }).then(_ => { this.status.reblogged = false }, _ => {})
+      } else {
+        this.$http.post(this.endpoint + '/reblog', {}, {
+          headers: { Authorization: 'Bearer ' + config.token }
+        }).then(_ => { this.status.reblogged = true }, _ => {})
+      }
+    },
+    toggleStar () {
+      if (this.status.favourited) {
+        this.$http.post(this.endpoint + '/unfavourite', {}, {
+          headers: { Authorization: 'Bearer ' + config.token }
+        }).then(_ => { this.status.favourited = false }, _ => {})
+      } else {
+        this.$http.post(this.endpoint + '/favourite', {}, {
+          headers: { Authorization: 'Bearer ' + config.token }
+        }).then(_ => { this.status.favourited = true }, _ => {})
+      }
+    },
     fetchCard (attempts = 0) {
       // console.log('Fetching card for toot#' + this.status.id)
       this.$http
-          .get(config.instance + '/api/v1/statuses/' + this.status.id + '/card')
+          .get(this.endpoint + '/card', {
+            headers: { Authorization: 'Bearer ' + config.token }
+          })
           .then(response => {
             if (response.body.url) {
               this.card = response.body
@@ -141,6 +202,33 @@ article section a.noopener {
 
 a {
   display: inline-block
+}
+
+article div button {
+  width: 2em;
+  transition: all .5s ease;
+  background: center center / 75% no-repeat #666;
+}
+
+article div button.active {
+  transform: rotate(360deg);
+  background-color: #ccc
+}
+
+article div button.boost {
+  background-image: url('/static/icons/boost.png')
+}
+
+article div button.star {
+  background-image: url('/static/icons/star.png')
+}
+
+article div button.reply {
+  background-image: url('/static/icons/reply.png')
+}
+
+article div button.delete {
+  background-image: url('/static/icons/delete.png')
 }
 
 .nsfw {
