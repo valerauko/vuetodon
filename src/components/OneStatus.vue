@@ -25,7 +25,8 @@
       /><button title="Boost"
       /><button title="Star"
       /><button title="Delete"
-        v-if="author.acct == $root.$data.store.currentUser.acct"
+        v-if="author.acct === $root.$data.store.currentUser.acct"
+        @click="destroy"
       />
     </div>
   </article>
@@ -91,12 +92,29 @@ export default {
       // wait at least 10 seconds since toot creation to look at Card
       setTimeout(this.fetchCard, 10000 - Moment().diff(this.rawTime))
     }
+    this.endpoint = config.instance + '/api/v1/statuses/' + this.status.id
   },
   methods: {
+    destroy () {
+      if (!confirm('Are you sure you want to delete this toot?')) {
+        return true
+      }
+      if (this.author.acct !== this.$root.$data.store.currentUser.acct) {
+        console.log('Can\'t delete someone else\'s toot')
+        return false
+      }
+      this.$http.delete(this.endpoint, {
+        headers: { Authorization: 'Bearer ' + config.token }
+      }).then(response => {
+        console.log('Deleted toot')
+      }, response => console.log('Failed to delete toot'))
+    },
     fetchCard (attempts = 0) {
       // console.log('Fetching card for toot#' + this.status.id)
       this.$http
-          .get(config.instance + '/api/v1/statuses/' + this.status.id + '/card')
+          .get(this.endpoint + '/card', {
+            headers: { Authorization: 'Bearer ' + config.token }
+          })
           .then(response => {
             if (response.body.url) {
               this.card = response.body
