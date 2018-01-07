@@ -203,13 +203,7 @@ a {
 }
 
 article div button {
-  height: 2em;
   width: 2em;
-  padding: 0;
-  margin: 0 0.5em;
-  background: #111;
-  border: 1px solid #999;
-  border-radius: 1em;
   transition: all .5s ease;
   background: center center / 75% no-repeat #666;
 }
