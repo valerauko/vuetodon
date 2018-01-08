@@ -134,6 +134,7 @@ button {
 
 label.fileSelect {
   display: inline-block;
+  cursor: pointer;
   /* with 2em the same as the buttons it'd be 2px bigger than the buttons? */
   height: 30.1667px;
   width: 30.1667px;
@@ -143,6 +144,10 @@ label.fileSelect {
   border: 1px solid #999;
   border-radius: 1em;
   background: url('/static/icons/camera.png') center center / 75% no-repeat #666;
+}
+
+button:hover, label.fileSelect:hover {
+  background-color: #999
 }
 
 #fileUploader {

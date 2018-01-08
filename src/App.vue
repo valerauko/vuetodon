@@ -3,10 +3,10 @@
     <login v-if="!loggedIn" :show="!loggedIn" @close="loggedIn = true" />
     <div v-if="loggedIn">
       <header>
-        <router-link to="/" title="Home"><span>Home</span></router-link>
-        <router-link to="/local" title="Local"><span>Local</span></router-link>
-        <router-link to="/fed" title="Fed"><span>Fed</span></router-link>
-        <a href="#" title="Log out" @click="loggingOut = true"><span>Log out</span></a>
+        <router-link to="/" id="home" title="Home"><span>Home</span></router-link>
+        <router-link to="/local" id="local" title="Local"><span>Local</span></router-link>
+        <router-link to="/fed" id="fed" title="Fed"><span>Fed</span></router-link>
+        <a href="#" title="Log out" id="logout" @click="loggingOut = true"><span>Log out</span></a>
       </header>
       <logout v-if="loggingOut" :show="loggingOut"
               @logout="logOut" @close="loggingOut = false" />
@@ -75,7 +75,6 @@ a:hover, a:active {
   font: normal normal 16px/1.5em 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #999;
   margin-top: 60px;
 }
@@ -90,7 +89,32 @@ article section.nsfw:hover > p {
   opacity: 1
 }
 
-button {
+header {
+  display: flex;
+  justify-content: center;
+}
+
+header a span {
+  display: none
+}
+
+#home {
+  background-image: url('/static/icons/home.png');
+}
+
+#local {
+  background-image: url('/static/icons/local.png');
+}
+
+#fed {
+  background-image: url('/static/icons/fed.png');
+}
+
+#logout {
+  background-image: url('/static/icons/logout.png');
+}
+
+button, header a {
   font: inherit;
   height: 2em;
   padding: 0;
@@ -98,6 +122,17 @@ button {
   background: #666;
   border: 1px solid #999;
   border-radius: 1em;
+  cursor: pointer;
+}
+
+header a {
+  display: inline-block;
+  width: 2em;
+  background: center center / 75% #666 no-repeat;
+}
+
+header a:hover {
+  background-color: #999;
 }
 
 .linkReplace {

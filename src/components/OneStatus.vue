@@ -219,8 +219,12 @@ a {
 
 article div button {
   width: 2em;
-  transition: all .5s ease;
+  transition: transform .5s ease;
   background: center center / 75% no-repeat #666;
+}
+
+article div button:hover {
+  background-color: #999
 }
 
 article div button.active {

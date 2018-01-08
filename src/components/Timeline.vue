@@ -178,4 +178,15 @@ export default {
 ol {
   list-style: none outside none;
 }
+
+button {
+  display: block;
+  margin: 1em auto;
+  padding: 0 1em;
+  color: #111;
+}
+
+button:hover {
+  background-color: #999
+}
 </style>
