@@ -4,17 +4,20 @@
       v-model="message"
       @paste="onPaste"
     ></textarea>
-    <input type="file" multiple
-      @change="onSelectFile"
-      :disabled="uploads.length > 3"
-      accept="image/jpeg,image/png,image/gif" />
-    <div v-if="uploads.length > 0">
-      <template v-for="image in uploads">
+    <div class="previews" v-if="uploads.length > 0">
+      <div v-for="image in uploads">
         <img :src="image.preview_url" />
         <button @click="unUpload(image)">Delete</button>
-      </template>
+      </div>
     </div>
-    <button @click="send">Toot!</button>
+    <div>
+      <label class="fileSelect" for="fileUploader"
+      /><button @click="send">Toot!</button>
+      <input id="fileUploader" name="fileUploader" type="file" multiple
+        @change="onSelectFile"
+        :disabled="uploads.length > 3"
+        accept="image/jpeg,image/png,image/gif" />
+    </div>
   </form>
 </template>
 
@@ -37,7 +40,7 @@ export default {
       }
       return [...new Set(at)].filter(name => {
         return name !== this.$root.$data.store.currentUser.acct
-      }).map(name => '@' + name)
+      })
     },
     send () {
       if (this.sending || (!this.message.length && !this.uploads.length)) {
@@ -94,7 +97,8 @@ export default {
   },
   mounted () {
     if (this.replyTo.account) {
-      let mentions = this.getMentionsFrom(this.replyTo).join(' ')
+      let mentions = this.getMentionsFrom(this.replyTo).map(name => '@' + name)
+                                                       .join(' ')
       if (mentions.length > 2) {
         this.message = mentions + ' '
       }
@@ -115,9 +119,57 @@ textarea {
   font: inherit;
   color: #fff;
 }
+
+div {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 button {
-  padding: 0 1em;
   background: #666;
+  padding: 0 1em;
   color: #111;
+}
+
+label.fileSelect {
+  display: inline-block;
+  cursor: pointer;
+  /* with 2em the same as the buttons it'd be 2px bigger than the buttons? */
+  height: 30.1667px;
+  width: 30.1667px;
+  padding: 0;
+  margin: 0 0.5em;
+  background: #666;
+  border: 1px solid #999;
+  border-radius: 1em;
+  background: url('/static/icons/camera.png') center center / 75% no-repeat #666;
+}
+
+button:hover, label.fileSelect:hover {
+  background-color: #999
+}
+
+#fileUploader {
+  display: none;
+}
+
+div.previews div {
+  max-width: 10vw;
+  height: 10vw;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 1em;
+  overflow: hidden;
+}
+
+div.previews div img {
+  max-height: 8vw;
+  max-width: 100%;
+  height: auto;
+}
+
+div.previews div button {
+  margin: .5em;
 }
 </style>
