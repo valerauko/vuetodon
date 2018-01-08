@@ -1,11 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Timeline from '@/components/Timeline'
+import Convo from '@/components/Convo'
 import Login from '@/components/Login'
 
 Vue.use(Router)
 
 export default new Router({
+  hashbang: false,
   routes: [
     {
       path: '/',
@@ -29,6 +31,11 @@ export default new Router({
       path: '/login',
       name: 'Login',
       component: Login
+    },
+    {
+      path: '/convo/:id',
+      name: 'Convo',
+      component: Convo
     }
   ]
 })

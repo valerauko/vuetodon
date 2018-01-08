@@ -28,19 +28,32 @@ export default {
       uploads: []
     }
   },
+  props: ['replyTo'],
   methods: {
+    getMentionsFrom (obj) {
+      var at = [obj.account.acct, ...obj.mentions.map(mention => mention.acct)]
+      if (obj.reblog && obj.reblog.id) {
+        at = [...at, ...this.getMentionsFrom(obj.reblog)]
+      }
+      return [...new Set(at)].filter(name => {
+        return name !== this.$root.$data.store.currentUser.acct
+      }).map(name => '@' + name)
+    },
     send () {
-      if (!this.message.length && !this.uploads.length) {
+      if (this.sending || (!this.message.length && !this.uploads.length)) {
         return true
       }
+      this.sending = true
       this.$http.post(this.endpoints.toot, {
         status: this.message,
-        media_ids: this.uploads.slice(0, 4).map(upload => upload.id)
+        media_ids: this.uploads.slice(0, 4).map(upload => upload.id),
+        in_reply_to_id: this.replyTo.id
       }, {
         headers: { Authorization: 'Bearer ' + config.token }
       }).then(response => {
         this.message = ''
         this.uploads = []
+        this.sending = false
         this.$emit('newToot', response.body)
       }, response => console.log('Request failed.'))
     },
@@ -50,7 +63,6 @@ export default {
         return true
       }
       [...files].map(this.uploadOne)
-      files = []
     },
     onPaste (e) {
       if (!e.clipboardData.items || this.uploads.length > 3) {
@@ -78,6 +90,14 @@ export default {
     this.endpoints = {
       toot: config.instance + '/api/v1/statuses',
       media: config.instance + '/api/v1/media'
+    }
+  },
+  mounted () {
+    if (this.replyTo.account) {
+      let mentions = this.getMentionsFrom(this.replyTo).join(' ')
+      if (mentions.length > 2) {
+        this.message = mentions + ' '
+      }
     }
   }
 }
