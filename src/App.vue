@@ -91,10 +91,11 @@ article section.nsfw:hover > p {
 }
 
 button {
+  font: inherit;
   height: 2em;
   padding: 0;
   margin: 0 0.5em;
-  background: #111;
+  background: #666;
   border: 1px solid #999;
   border-radius: 1em;
 }
