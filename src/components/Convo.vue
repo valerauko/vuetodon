@@ -2,13 +2,15 @@
   <div>
     <ol v-if="ancestors.length">
       <li v-for="status in ancestors" :key="status.id">
-        <one-status :status="status" />
+        <one-status :status="status" @deleteToot="deleteSuccess" />
       </li>
     </ol>
-    <one-status v-if="coreStatus.id" :status="coreStatus" :passedCard="coreCard" />
+    <one-status v-if="coreStatus.id" @deleteToot="deleteSuccess"
+                :status="coreStatus" :passedCard="coreCard" />
+    <new-toot :replyTo="coreStatus" @newToot="postSuccess" />
     <ol v-if="descendants.length">
       <li v-for="status in descendants" :key="status.id">
-        <one-status :status="status" />
+        <one-status :status="status" @deleteToot="deleteSuccess" />
       </li>
     </ol>
   </div>
@@ -16,11 +18,12 @@
 
 <script>
 import OneStatus from '@/components/OneStatus'
+import NewToot from '@/components/NewToot'
 import config from '@/lib/config'
 export default {
   name: 'Convo',
   components: {
-    OneStatus
+    OneStatus, NewToot
   },
   data () {
     return {
@@ -50,6 +53,17 @@ export default {
     }
   },
   methods: {
+    postSuccess (status) {
+      this.descendants.unshift(status)
+    },
+    deleteSuccess (id) {
+      if (id === this.id) {
+        this.$route.push('Home')
+      }
+      const notThis = (item) => item.id !== id
+      this.descendants = this.descendants.filter(notThis)
+      this.ancestors = this.ancestors.filter(notThis)
+    },
     init () {
       this.ancestors = []
       this.descendants = []

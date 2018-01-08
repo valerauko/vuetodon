@@ -1,6 +1,6 @@
 <template>
   <div>
-    <new-toot/>
+    <new-toot :replyTo="{}" />
     <button v-if="scrolled" @click="restartStream">Catch up at once!</button>
     <ol @deleteToot="deleteToot" @newToot="newToot">
       <li v-for="status in statuses" :key="status.id">

@@ -2,8 +2,8 @@
   <article>
     <div>
       <div v-if="reblog">Boosted by
-        <a :href="booster.url">{{ booster.display_name }}</a></div>
-      <a :href="author.url">{{ author.display_name }}</a>
+        <a :href="booster.url">{{ booster.display_name || booster.username }}</a></div>
+      <a :href="author.url">{{ author.display_name || author.username }}</a>
       <a :href="orBoosted.url" :title="fullTime">{{ displayTime }}</a>
     </div>
     <section v-if="orBoosted.spoiler_text" v-html="orBoosted.spoiler_text"></section>
