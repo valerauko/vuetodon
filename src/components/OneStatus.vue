@@ -10,11 +10,13 @@
     <section v-bind:class="{ nsfw: orBoosted.spoiler_text }"
              v-swapLinks="swapLinks"
              v-html="content"></section>
-    <section v-if="orBoosted.media_attachments.length > 0">
+    <section :class="['images', 'i' + orBoosted.media_attachments.length]"
+             v-if="orBoosted.media_attachments.length > 0">
       <a v-bind:class="{ nsfw: isNsfw }"
          v-for="image in images"
          :href="image.remote_url || image.url">
-        <img :src="image.preview_url" />
+        <img :src="image.preview_url"
+             :class="{ portrait: isPortrait(image) }" />
       </a>
     </section>
     <card v-bind:class="{ nsfw: isNsfw }"
@@ -106,6 +108,13 @@ export default {
     this.endpoint = config.instance + '/api/v1/statuses/' + this.status.id
   },
   methods: {
+    isPortrait (img) {
+      let src = img.meta && img.meta.original
+      if (!src || !src.width || !src.height) {
+        return false
+      }
+      return src.height > src.width
+    },
     destroy () {
       if (!confirm('Are you sure you want to delete this toot?')) {
         return true
@@ -251,4 +260,98 @@ article div button.delete {
 .nsfw:hover > * {
   opacity: 1;
 }
+
+.images {
+  margin: 0 auto;
+  display: grid;
+  width: 402px;
+  grid-gap: 2px;
+}
+
+.images.i1 {
+  grid-template-columns: 400px;
+  grid-auto-rows: 300px;
+}
+
+.images.i2 {
+  grid-template-columns: 200px 200px;
+  grid-auto-rows: 200px;
+}
+
+.images.i3 {
+  grid-template-columns: calc(800px / 3) calc(400px / 3);
+  grid-auto-rows: calc(400px / 3);
+}
+
+.images.i4 {
+  grid-template-columns: 304px 100px;
+  grid-auto-rows: 100px;
+}
+
+.images a {
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  grid-column: 2;
+}
+
+.images a img {
+  flex: none;
+  height: 100%;
+  width: auto;
+}
+
+.images a img.portrait {
+  max-width: 100%;
+  height: auto;
+}
+
+.images a:first-of-type {
+  grid-column: 1;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.images a:nth-of-type(2) {
+  grid-row: 1;
+  border-top-right-radius: 5px;
+}
+
+.images a:nth-of-type(3) {
+  grid-row: 2;
+}
+
+.images a:last-of-type {
+  border-bottom-right-radius: 5px;
+}
+
+.images.i1 a {
+  border-radius: 5px;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.images.i2 a:first-of-type {
+  grid-row: 1;
+}
+
+.images.i2 a:last-of-type {
+  grid-column: 2;
+}
+
+.images.i3 a:first-of-type {
+  grid-row: 1 / 3;
+}
+
+.images.i4 a:first-of-type {
+  grid-row: 1 / 4;
+}
+
+.images.i4 a:nth-of-type(4) {
+  grid-row: 3;
+}
+
 </style>
