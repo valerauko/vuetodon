@@ -40,7 +40,7 @@ export default {
       }
       return [...new Set(at)].filter(name => {
         return name !== this.$root.$data.store.currentUser.acct
-      }).map(name => '@' + name)
+      })
     },
     send () {
       if (this.sending || (!this.message.length && !this.uploads.length)) {
@@ -97,7 +97,8 @@ export default {
   },
   mounted () {
     if (this.replyTo.account) {
-      let mentions = this.getMentionsFrom(this.replyTo).join(' ')
+      let mentions = this.getMentionsFrom(this.replyTo).map(name => '@' + name)
+                                                       .join(' ')
       if (mentions.length > 2) {
         this.message = mentions + ' '
       }
