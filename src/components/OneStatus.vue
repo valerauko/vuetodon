@@ -203,9 +203,10 @@ export default {
 article {
   border: 1px solid #999;
   border-radius: 5px;
-  width: 50vw;
+  width: 600px;
   margin: .5em auto;
   padding: 1em;
+  text-align: left;
 }
 
 article section a.noopener {
@@ -295,7 +296,6 @@ article div button.delete {
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  grid-column: 2;
 }
 
 .images a img {
@@ -305,7 +305,7 @@ article div button.delete {
 }
 
 .images a img.portrait {
-  max-width: 100%;
+  width: 100%;
   height: auto;
 }
 
