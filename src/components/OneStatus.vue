@@ -181,10 +181,10 @@ export default {
       if (links.length < 1) { return true }
       [...links].map(link => {
         if (this.images && this.images.find(img => img.text_url === link.href)) {
-          link.innerHTML = 'AAA'
+          link.innerHTML = '<span class="linkReplace image" />'
         }
         if (this.status.card && this.status.card.url === link.href) {
-          link.innerHTML = 'BBB'
+          link.innerHTML = '<span class="linkReplace card" />'
         }
       })
     },

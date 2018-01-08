@@ -100,6 +100,23 @@ button {
   border-radius: 1em;
 }
 
+.linkReplace {
+  display: inline-block;
+  margin-bottom: -3px;
+  margin-left: 3px;
+  height: 1.2em;
+  width: 1.2em;
+  background: center center / 1em #666 no-repeat;
+}
+
+.linkReplace.image {
+  background-image: url('/static/icons/image.png')
+}
+
+.linkReplace.card {
+  background-image: url('/static/icons/link.png')
+}
+
 .invisible {
   display: none;
 }
