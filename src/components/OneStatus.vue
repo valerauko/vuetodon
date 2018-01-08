@@ -13,7 +13,7 @@
     <section v-if="orBoosted.media_attachments.length > 0">
       <a v-bind:class="{ nsfw: isNsfw }"
          v-for="image in images"
-         :href="image.text_url">
+         :href="image.remote_url || image.url">
         <img :src="image.preview_url" />
       </a>
     </section>
@@ -22,6 +22,7 @@
           :card="card"></card>
     <div>
       <button title="Reply" class="reply"
+        @click="openSelf"
       /><button :title="status.reblogged ? 'Unboost' : 'Boost'"
         :disabled="!isPublic"
         :class="['boost', status.reblogged ? 'active' : '']"
@@ -44,7 +45,7 @@ import Card from '@/components/Card'
 import config from '@/lib/config'
 export default {
   name: 'OneStatus',
-  props: ['status'],
+  props: ['status', 'passedCard'],
   components: {
     Card
   },
@@ -98,7 +99,7 @@ export default {
     }
   },
   created () {
-    if (/<a href=[^>]+ rel="nofollow noopener"/.test(this.orBoosted.content)) {
+    if (!this.images.length && /<a [^>]*rel="nofollow noopener"/.test(this.orBoosted.content)) {
       // wait at least 10 seconds since toot creation to look at Card
       setTimeout(this.fetchCard, 10000 - Moment().diff(this.rawTime))
     }
@@ -146,7 +147,10 @@ export default {
       }
     },
     fetchCard (attempts = 0) {
-      // console.log('Fetching card for toot#' + this.status.id)
+      if (this.passedCard) {
+        this.card = this.passedCard
+        return true
+      }
       this.$http
           .get(this.endpoint + '/card', {
             headers: { Authorization: 'Bearer ' + config.token }
@@ -174,6 +178,13 @@ export default {
           link.innerHTML = 'BBB'
         }
       })
+    },
+    openSelf () {
+      this.$root.$data.store.opened = { status: this.status, card: this.card }
+      this.$router.push({
+        name: 'Convo',
+        params: { id: this.status.id }
+      })
     }
   }
 }
@@ -190,14 +201,6 @@ article {
 
 article section a.noopener {
   display: none;
-}
-
-.invisible {
-  display: none;
-}
-
-.ellipsis:after {
-  content: '…';
 }
 
 a {

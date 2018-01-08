@@ -98,4 +98,12 @@ button {
   border: 1px solid #999;
   border-radius: 1em;
 }
+
+.invisible {
+  display: none;
+}
+
+.ellipsis:after {
+  content: '…';
+}
 </style>

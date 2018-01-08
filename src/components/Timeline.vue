@@ -4,7 +4,7 @@
     <button v-if="scrolled" @click="restartStream">Catch up at once!</button>
     <ol @deleteToot="deleteToot" @newToot="newToot">
       <li v-for="status in statuses" :key="status.id">
-        <one-status :status.sync="status"></one-status>
+        <one-status :status="status" />
       </li>
     </ol>
   </div>
@@ -45,16 +45,27 @@ export default {
       if (el.scrollTop === 0) {
         this.scrolled = false
         this.readUp()
-      } else if (el.scrollTop + el.clientHeight >= el.offsetHeight) {
+      } else if (el.scrollTop + el.clientHeight >= el.offsetHeight - 150) {
         this.readDown()
       }
     },
     readScroll (way, pass) {
       return this.read(config.scrollLimit, pass).then(() => {
         let statuses = [this.statuses, this.newStatuses]
-        // the direction we're reading just changes which gets concatenated to which
+        // the reading direction just changes which gets concatenated to which
         this.statuses = statuses[+(way === 'up')]
                           .concat(statuses[+(way !== 'up')])
+                          .filter((elem, index, self) => {
+                            // want only the first of possible duplicates
+                            // only let it in if there are no other statuses
+                            //  before it (eg compareIndex < index) such that
+                            //  the status's id is the same
+                            // FIXME: loop in a loop
+                            return !self.find((compareElem, compareIndex) => {
+                              return elem.id === compareElem.id &&
+                                     index > compareIndex
+                            })
+                          })
         this.fired = false
       })
     },
@@ -108,9 +119,11 @@ export default {
       this.socket.onerror = error => console.log(error)
     },
     newToot (status) {
-      this.statuses = [status,
-                       ...this.statuses.filter(toot => toot.id !== status.id)
-                                       .slice(0, config.statusLimit - 1)]
+      this.statuses = [
+        status,
+        ...this.statuses.filter(toot => toot.id !== status.id)
+                        .slice(0, config.statusLimit - 1)
+      ]
     },
     deleteToot (id) {
       this.statuses = this.statuses.filter(elem => {

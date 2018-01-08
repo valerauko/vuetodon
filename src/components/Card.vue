@@ -17,8 +17,28 @@ export default {
     description () {
       if (typeof this.card.description !== 'undefined' &&
           this.card.description.length > 0) {
-        return this.card.description
+        return this.truncate(this.card.description)
       }
+    }
+  },
+  methods: {
+    truncate (str) {
+      let max = 150
+      if (typeof str !== 'string' || str.length <= max) {
+        return str
+      }
+      let mid = /[\s?!.\u3000-\u303f]/u // range of cjk punctuation
+      var broken = false
+      const merge = (acc, curr) => {
+        let ifAdded = acc.length + curr.length
+        if (!broken && ifAdded < max) {
+          return acc + curr + (str[ifAdded] ? str[ifAdded] : '')
+        } else {
+          broken = true
+          return acc
+        }
+      }
+      return str.split(mid).reduce(merge, '')
     }
   }
 }

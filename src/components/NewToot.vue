@@ -30,9 +30,10 @@ export default {
   },
   methods: {
     send () {
-      if (!this.message.length && !this.uploads.length) {
+      if (this.sending || (!this.message.length && !this.uploads.length)) {
         return true
       }
+      this.sending = true
       this.$http.post(this.endpoints.toot, {
         status: this.message,
         media_ids: this.uploads.slice(0, 4).map(upload => upload.id)
@@ -41,6 +42,7 @@ export default {
       }).then(response => {
         this.message = ''
         this.uploads = []
+        this.sending = false
         this.$emit('newToot', response.body)
       }, response => console.log('Request failed.'))
     },
@@ -50,7 +52,6 @@ export default {
         return true
       }
       [...files].map(this.uploadOne)
-      files = []
     },
     onPaste (e) {
       if (!e.clipboardData.items || this.uploads.length > 3) {
