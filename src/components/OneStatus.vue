@@ -97,7 +97,7 @@ export default {
       return this.orBoosted.sensitive
     },
     content () {
-      return this.orBoosted.content
+      return this.orBoosted.content.replace(/`(.+?)`/u, '<code>$1</code>')
     }
   },
   created () {
