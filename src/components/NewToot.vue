@@ -31,6 +31,11 @@ export default {
       uploads: []
     }
   },
+  computed: {
+    replyToId () {
+      return this.replyTo.reblog ? this.replyTo.reblog.id : this.replyTo.id
+    }
+  },
   props: ['replyTo'],
   methods: {
     getMentionsFrom (obj) {
@@ -50,7 +55,7 @@ export default {
       this.$http.post(this.endpoints.toot, {
         status: this.message,
         media_ids: this.uploads.slice(0, 4).map(upload => upload.id),
-        in_reply_to_id: this.replyTo.id
+        in_reply_to_id: this.replyToId
       }, {
         headers: { Authorization: 'Bearer ' + config.token }
       }).then(response => {
@@ -115,7 +120,7 @@ textarea {
   border-radius: 5px;
   margin: 0.5em auto;
   padding: 1em;
-  width: 30vw;
+  width: 600px;
   font: inherit;
   color: #fff;
 }

@@ -176,6 +176,8 @@ export default {
 
 <style scoped>
 ol {
+  padding: 0;
+  margin: 0;
   list-style: none outside none;
 }
 
