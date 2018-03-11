@@ -72,7 +72,7 @@ a:hover, a:active {
 }
 
 #app {
-  font: normal normal 16px/1.5em 'Avenir', Helvetica, Arial, sans-serif;
+  font: normal normal 1em/1.5em 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #999;
