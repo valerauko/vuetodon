@@ -11,11 +11,10 @@
       </div>
     </div>
     <div>
-      <label class="fileSelect" for="fileUploader"
+      <label title="Upload files" class="fileSelect" for="fileUploader"
       /><button @click="send">Toot!</button>
-      <input id="fileUploader" name="fileUploader" type="file" multiple
-        @change="onSelectFile"
-        :disabled="uploads.length > 3"
+      <input type="file" multiple id="fileUploader" name="fileUploader"
+        @change="onSelectFile" :disabled="uploads.length > 3"
         accept="image/jpeg,image/png,image/gif" />
     </div>
   </form>
