@@ -40,7 +40,7 @@ export default {
     },
     login () {
       let uri = new URL(this.instance)
-      if (this.known()[uri.host] == null) {
+      if (this.known() === null || this.known()[uri.host] === null) {
         this.registerWithInstance(uri).then(this.attemptLogin)
       } else {
         this.attemptLogin()
