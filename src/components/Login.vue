@@ -74,7 +74,7 @@ export default {
         scopes: ['read', 'write', 'follow'].join(' '),
         website: 'http://valerauko.net'
       }).then(response => {
-        var known = this.known()
+        var known = this.known() || {}
         known[uri.host] = {
           host: uri.origin,
           client_id: response.body.client_id,
