@@ -1,6 +1,6 @@
 <template>
   <div id="app" @login="updateCurrentUser">
-    <login v-if="!loggedIn" :show="!loggedIn" @close="loggedIn = true" />
+    <login v-if="!loggedIn" :show="!loggedIn" @close="logIn" />
     <div v-if="loggedIn">
       <header>
         <router-link to="/" id="home" title="Home"><span>Home</span></router-link>
@@ -34,6 +34,10 @@ export default {
   methods: {
     logOut () {
       this.loggedIn = false
+    },
+    logIn () {
+      this.loggedIn = true
+      config.reload()
     },
     updateCurrentUser () {
       this.$http
